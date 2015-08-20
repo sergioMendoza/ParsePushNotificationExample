@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -30,8 +31,10 @@ public class MainActivity extends Activity implements OnClickListener {
 		
         @Override
         public void onReceive(Context context, Intent intent) {        	
-        	Toast.makeText(getApplicationContext(), "onReceive invoked!", Toast.LENGTH_LONG).show();
-        }
+
+			Toast.makeText(getApplicationContext(), "onReceive invoked!", Toast.LENGTH_LONG).show();
+
+		}
     };
     
 	@Override
@@ -43,6 +46,8 @@ public class MainActivity extends Activity implements OnClickListener {
 
 		push = (Button)findViewById(R.id.senPushB);
 		push.setOnClickListener(this);
+
+
 	}
 	
 	@Override
@@ -55,8 +60,31 @@ public class MainActivity extends Activity implements OnClickListener {
 	@Override
     public void onResume() {
         super.onResume();
-        
-        LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, new IntentFilter(MyCustomReceiver.intentAction));
+		Bundle bundle = getIntent().getExtras();
+		String pushStore=null;
+		if (bundle != null) {
+			String notificationData = bundle.getString("com.parse.Data");
+			if (notificationData != null) {
+				JSONObject json = null;
+				try {
+					json = new JSONObject(notificationData);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+				try {
+					pushStore = json.getString("data");
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+				if(pushStore!=null) {
+					Log.d("detectPush", "notificationData =" + pushStore);
+				}
+
+				//handlePushNotificationMessage(notificationData);
+			}
+
+		}
+        //LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, new IntentFilter(MyCustomReceiver.intentAction));
     }
     
 	@Override
